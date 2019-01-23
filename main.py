@@ -182,7 +182,127 @@ def userValidate(userLogin, userPass, mainWindow):
                 if usernames[userLogin.upper()] == hash(userPass):
                         bankInfo(userLogin, mainWindow)
                 else:
-                        messagebox.showinfo('FAILURE','Incorrect Password')
+                        messagebox.showinfo('Failure','Incorrect Password')
+
+def creation(usernameTry, password1Try, password2Try, window):
+
+        '''Registers the user to the database'''
+
+        # Validation
+
+        for user in users:
+                if user == usernameTry.upper():
+                        messagebox.showinfo('Failure', 'Username taken')
+                        return None
+
+        '''
+        if not usernameTry.isalpha():
+                messagebox.showinfo('Failure', 'Username must only contain characters')
+                return None
+        '''
+
+        if password1Try != password2Try:
+                messagebox.showinfo("Failure", "Passwords don't match")
+                return None
+
+        # Adds Data To Database
+
+        databases.writeto('users',str(usernameTry.upper()),';','','.txt')
+        databases.writeto('users',str(hash(password1Try)),';','','.txt')
+
+        databases.writeto('balance',str(usernameTry.upper()),';','','.txt')
+        databases.writeto('balance','0',';','','.txt')
+
+        messagebox.showinfo("Success", "Account Created")
+
+        # Loads Main Window
+
+        main(window)
+
+def usersSet():
+
+        '''Sets users dictionary up, to match the database'''
+
+        global users
+
+        users = {}
+
+        usersDatabase = databases.readto('users',';','','.txt')
+
+        for x in range(int(len(usersDatabase)/2)):
+                users[usersDatabase[2*x]] = 0
+
+def usernamesSet():
+
+    '''Sets users dictionary up, to match the database'''
+
+    global usernames
+
+    usersDatabase = databases.readto('users',';','','.txt')
+
+    usernames = {}
+
+    for x in range(int(len(usersDatabase)/2)):
+        usernames[usersDatabase[2*x]] = usersDatabase[(2*x)+1]
+
+def userCreate(window):
+
+        '''Creates a user registration window'''
+
+        window.destroy() # Destroys Inputted Window
+
+        # Creates Login Window
+
+        ## Window Configuration
+        
+        window = tkinter.Tk()
+        window.title('Register')
+        window.geometry("200x250")
+        window.configure(background='grey')
+
+        ## Object Creations
+
+        label8 = tkinter.Label(window, text="Username:")
+        entry8 = tkinter.Entry(window)
+
+        label9 = tkinter.Label(window, text="Password:")
+        entry9 = tkinter.Entry(window, show='*')
+
+        label10 = tkinter.Label(window, text="Password Confirmation:")
+        entry10 = tkinter.Entry(window, show='*')
+
+        create = tkinter.Button(window, text='Create', command=lambda: creation(entry8.get(), entry9.get(), entry10.get(), window))
+        exit = tkinter.Button(window, text='Exit', command=lambda: main(window))
+
+        ## Object Placements
+
+        label8.pack()
+        label8.place(x=100, y=35, anchor="s")
+        
+        entry8.pack()
+        entry8.place(x=100, y=55, anchor="s")
+        
+        label9.pack()
+        label9.place(x=100, y=85, anchor="s")
+        
+        entry9.pack()
+        entry9.place(x=100, y=105, anchor="s")
+
+        label10.pack()
+        label10.place(x=100, y=135, anchor="s")
+        
+        entry10.pack()
+        entry10.place(x=100, y=155, anchor="s")        
+        
+        create.pack()
+        create.place(x=100, y=200, anchor="s")
+
+        exit.pack()
+        exit.place(x=100, y=235, anchor="s")
+
+        ## Mainloop
+
+        window.mainloop()
 
 def main(root=None):
 
@@ -195,6 +315,8 @@ def main(root=None):
 
         # Setup
 
+        usersSet()
+        usernamesSet()
         getBalance()
 
         # Creates Login Window
@@ -203,7 +325,7 @@ def main(root=None):
         
         window = tkinter.Tk()
         window.title('Login')
-        window.geometry("200x150")
+        window.geometry("200x180")
         window.configure(background='grey')
 
         ## Object Creations
@@ -216,6 +338,7 @@ def main(root=None):
         entry2 = tkinter.Entry(window, show='*')
 
         login = tkinter.Button(window, text='Login', command=lambda: userValidate(entry1.get(), entry2.get(), window))
+        register = tkinter.Button(window, text='Register', command=lambda: userCreate(window))
 
         ## Object Placements
 
@@ -233,6 +356,9 @@ def main(root=None):
         
         login.pack()
         login.place(x=100, y=145, anchor="s")
+
+        register.pack()
+        register.place(x=100, y=175, anchor="s")
 
         ## Mainloop
 
